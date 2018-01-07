@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Latest compiled and minified CSS & JS -->
+    <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <title>RPS-Multiplayer</title>
+</head>
+<body>
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Rock,Paper,Scissors</h1>
+            <p>The best way to settle any dispute!</p>
+        </div>
+    </div>
+    <div class="container">
+    <div class="row">
+        <div class="col-md-offset-3 col-md-6 col-md-offset-3">
+            <form action="" method="POST" class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <legend>User Name</legend>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-10 col-sm-offset-2">
+                            <input type="text" placeholder="Name">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-lg-4 middle">
+            <div class="square player1"></div>
+        </div>
+        <div class="col-md-4 col-lg-4 middle">
+            <div class="square battleField"></div>
+        </div>
+        <div class="col-md-4 col-lg-4 middle">
+            <div class="square player2"></div>
+        </div>
+    </div> 
+    <div class="row">
+        <div class="col-md-offset-1 col-md-10 col-md-offset-1 chat">
+            <input type="text" class="chatBox">
+        </div>
+    </div>
+    </div>
+    
+<script src="assets/js/app.js"></script>
+</body>
+</html>

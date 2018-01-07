@@ -1,0 +1,14 @@
+.square {
+    height: 300px;
+    border:solid black 1px;
+    background: lightblue;
+    margin: 25px;
+}
+
+.chatBox{
+    height: 200px;
+    width: 100%;
+    margin-top: 20px;
+    border: solid black 2px;
+}
+    
