@@ -11,4 +11,24 @@
     margin-top: 20px;
     border: solid black 2px;
 }
+.choicep1 {
+    font-size: 25px;
+    text-align: center;
+    height: 31%;
+    border: solid black 3px;
+    padding-top: 7%;
+}
+.choicep2 {
+    font-size: 25px;
+    text-align: center;
+    height: 31%;
+    border: solid black 3px;
+    padding-top: 7%;
+}
+.choicep1:hover {
+    background: white;
+    }
+.choicep2:hover {
+    background: white;
+    }
     
