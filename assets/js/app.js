@@ -16,6 +16,8 @@ var config = {
  // intial varibles
  var player1Wins = 0;
  var player2Wins = 0;
+ var player1Losses = 0;
+ var player2Losses = 0;
  var player1Choice ="";
  var player2Choice = "";
 
@@ -118,6 +120,7 @@ db.ref().on("value", function(snapshot) {
 
             if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "scissors")) {
             player1winner()
+            console.log(" I PLAYED THE GAME")
             } else if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "paper")) {
             player1loser()
             } else if ((dbplayer1Choice === "scissors") && (dbplayer2Choice === "rock")) {
@@ -132,7 +135,10 @@ db.ref().on("value", function(snapshot) {
             return
             }
         }
-    } else { return}
+    } else { 
+        console.log(" I DID NOT PLAY THE GAME")
+        return}
+
 })
 
 
@@ -150,7 +156,7 @@ db.ref().on("value", function(snapshot) {
 
 //             if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "scissors")) {
 //             player1winner()
-//             } else if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "paper")) {
+//             } else if ((dbplayer1Choice === "rock") && (dbplayer2Choicecd .. === "paper")) {
 //             player1loser()
 //             } else if ((dbplayer1Choice === "scissors") && (dbplayer2Choice === "rock")) {
 //                 player1loser();
@@ -168,27 +174,50 @@ db.ref().on("value", function(snapshot) {
 // }
 
 function player1winner() {
-    //update wins in database
+    //update wins/loses 
     player1Wins++
-    db.ref("players/one/wins").set(player1Wins)
-    console.log("player 1 wins: " + player1Wins)
+    player2Losses++
     //diplay in middle square choices of both oppoents
-    //change choices to empty
-    db.ref("players/one/choice").set("") 
-    db.ref("players/two/choice").set("") 
-    //empty player1 & 2 varibles
-    player1Choice = "";
-    player2Choice = "";
 
+    //user timer before starting next round 
+    // setTimeout(function {},8000)
+        db.ref("players/one/choice").set("") 
+        db.ref("players/two/choice").set("") 
+        //update win/losses in db 
+        db.ref("players/one/wins").set(player1Wins)
+        db.ref("players/two/losses").set(player2Losses)
+        //empty player1 & 2 varibles
+        player1Choice = "";
+        player2Choice = "";
+         // //Show Choices for next round
+        
+    
+    // //Show Choices for next round
+    // //change choices to empty
+    // db.ref("players/one/choice").set("") 
+    // db.ref("players/two/choice").set("") 
+    // //update win/losses in db 
+    // db.ref("players/one/wins").set(player1Wins)
+    // db.ref("players/two/losses").set(player2Losses)
+    // //empty player1 & 2 varibles
+    // player1Choice = "";
+    // player2Choice = "";
+    
 }
+
 function player1loser() {
     player2Wins++
+    player1Losses++
     db.ref("players/two/wins").set(player2Wins)
-    console.log("player 2 wins: " + player2Wins)
     //diplay in middle square choices of both oppoents
+    //user timer before starting next round 
+    //Show Choices for next round
     //change choices to empty
     db.ref("players/one/choice").set("") 
     db.ref("players/two/choice").set("")
+    //update win/losses in db 
+    db.ref("players/two/wins").set(player2Wins)
+    db.ref("players/one/losses").set(player1Losses)
     //empty player1 & 2 varibles
     player1Choice = "";
     player2Choice = "";
