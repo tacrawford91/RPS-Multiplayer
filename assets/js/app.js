@@ -20,7 +20,10 @@ var config = {
  var player2Losses = 0;
  var player1Choice ="";
  var player2Choice = "";
-
+ var dbPlayer1Name = "";
+ var dbPlayer2Name ="";
+ var dbplayer1Choice = "";
+ var dbplayer2Choice = "";
 
   //initialize db structure
   db.ref().set({
@@ -40,12 +43,12 @@ var config = {
 })
   
 //create choices 
-var rockChoice1 = $("<p>").text("Rock").attr("data-choice", "rock").addClass("choicep1"); 
-var paperChoice1 = $("<p>").text("Paper").attr("data-choice", "paper").addClass("choicep1"); 
-var scissorsChoice1 = $("<p>").text("Scissors").attr("data-choice", "scissors").addClass("choicep1"); 
-var rockChoice2 = $("<p>").text("Rock").attr("data-choice", "rock").addClass("choicep2"); 
-var paperChoice2 = $("<p>").text("Paper").attr("data-choice", "paper").addClass("choicep2"); 
-var scissorsChoice2 = $("<p>").text("Scissors").attr("data-choice", "scissors").addClass("choicep2");
+var rockChoice1 = $("<p>").text("Rock").attr("data-choice", "rock").addClass("choice choicep1"); 
+var paperChoice1 = $("<p>").text("Paper").attr("data-choice", "paper").addClass("choice choicep1"); 
+var scissorsChoice1 = $("<p>").text("Scissors").attr("data-choice", "scissors").addClass("choice choicep1"); 
+var rockChoice2 = $("<p>").text("Rock").attr("data-choice", "rock").addClass("choice choicep2"); 
+var paperChoice2 = $("<p>").text("Paper").attr("data-choice", "paper").addClass("choice choicep2"); 
+var scissorsChoice2 = $("<p>").text("Scissors").attr("data-choice", "scissors").addClass("choice choicep2");
 // append to player div
 $(".player1"). append(rockChoice1,paperChoice1,scissorsChoice1);
 $(".player2"). append(rockChoice2,paperChoice2,scissorsChoice2);
@@ -61,8 +64,8 @@ $("#add-player").on("click", function(){
     //assign to either player one or two
     db.ref("players").on("value", function(snapshot) {
         //set db varibles for easy access
-        var dbPlayer1Name = snapshot.child("one").child("name").val()
-        var dbPlayer2Name = snapshot.child("two").child("name").val()
+        dbPlayer1Name = snapshot.child("one").child("name").val()
+        dbPlayer2Name = snapshot.child("two").child("name").val()
 
         if (dbPlayer1Name === "") {
             dbPlayer1Name = newPlayer
@@ -70,6 +73,8 @@ $("#add-player").on("click", function(){
             db.ref("players/one/name").set(dbPlayer1Name)
              //show player 1 choices
             $(".choicep1").show();
+            //remove p2 choices
+            $(".choicep2").remove();
 
         } else if (dbPlayer2Name === "" && dbPlayer1Name !== newPlayer) {
             dbPlayer2Name = newPlayer
@@ -77,7 +82,8 @@ $("#add-player").on("click", function(){
             db.ref("players/two/name").set(dbPlayer2Name)
             //show player 2 choices
             $(".choicep2").show();
-            console.log("player 2" + dbPlayer2Name)
+            //remove p1 choices
+            $(".choicep1").remove();
         } 
     })
 })
@@ -86,20 +92,26 @@ $("#add-player").on("click", function(){
 $(".choicep1").on("click", function() {
     //set player choice to what was clicked
     player1Choice = $(this).attr("data-choice")
+    //add selected class
+    $(this).addClass("selected1")
     //set players choice in db
     db.ref("players/one/choice").set(player1Choice)
+    // remove class from this
+    $(this).removeClass("choicep1")
     //hide other choices
     $(".choicep1").hide()
-    $(this).show();
-})
+});
 $(".choicep2").on("click", function() {
     //set player choice to what was clicked
     player2Choice = $(this).attr("data-choice")
+    //add selected class
+    $(this).addClass("selected2")
     //set players choice in db
     db.ref("players/two/choice").set(player2Choice)
+    // remove class from this
+    $(this).removeClass("choicep2")
     //hide other choices
     $(".choicep2").hide()
-    $(this).show();
 })
 
 
@@ -109,13 +121,16 @@ $(".choicep2").on("click", function() {
 // play game
 db.ref().on("value", function(snapshot) {
 
-    var dbplayer1Choice = snapshot.val().players.one.choice
-    console.log(snapshot.val().players.one.choice)
-    console.log("dbplayer1   " + dbplayer1Choice);
-    var dbplayer2Choice = snapshot.val().players.two.choice
-    console.log("dbplayer2   " + dbplayer2Choice);
+    // get players 1 & 2 choice from db
+    dbplayer1Choice = snapshot.val().players.one.choice
+    dbplayer2Choice = snapshot.val().players.two.choice
+    rps();
+})
 
+
+function rps() {
     if (dbplayer1Choice !== "" && dbplayer2Choice !=="") {
+        //The following is the rps logic
         if ((dbplayer1Choice === "rock") || (dbplayer1Choice === "paper") || (dbplayer1Choice === "scissors")) {
 
             if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "scissors")) {
@@ -138,87 +153,84 @@ db.ref().on("value", function(snapshot) {
     } else { 
         console.log(" I DID NOT PLAY THE GAME")
         return}
-
-})
-
-
-
-// function rps() {
-
-
-    // var dbplayer1Choice = snapshot.child("one").child("choice").val()
-    // var dbplayer2Choice = snapshot.child("two").child("choice").val()
-//     var dbplayer1Choice = player1Choice;
-//     var dbplayer2Choice = player2Choice;
-
-//     if (dbplayer1Choice !== "" && dbplayer2Choice !=="") {
-//         if ((dbplayer1Choice === "rock") || (dbplayer1Choice === "paper") || (dbplayer1Choice === "scissors")) {
-
-//             if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "scissors")) {
-//             player1winner()
-//             } else if ((dbplayer1Choice === "rock") && (dbplayer2Choicecd .. === "paper")) {
-//             player1loser()
-//             } else if ((dbplayer1Choice === "scissors") && (dbplayer2Choice === "rock")) {
-//                 player1loser();
-//             } else if ((dbplayer1Choice === "scissors") && (dbplayer2Choice === "paper")) {
-//             player1winner()
-//             } else if ((dbplayer1Choice === "paper") && (dbplayer2Choice === "rock")) {
-//             player1winner()
-//             } else if ((dbplayer1Choice === "paper") && (dbplayer2Choice === "scissors")) {
-//             player1loser()
-//             } else if (dbplayer1Choice === dbplayer2Choice) {
-//             return
-//             }
-//         }
-//     } else { return}
-// }
+}
 
 function player1winner() {
     //update wins/loses 
     player1Wins++
     player2Losses++
     //diplay in middle square choices of both oppoents
-
+    middlePlayer1Wins()
     //user timer before starting next round 
-    // setTimeout(function {},8000)
-        db.ref("players/one/choice").set("") 
-        db.ref("players/two/choice").set("") 
-        //update win/losses in db 
-        db.ref("players/one/wins").set(player1Wins)
-        db.ref("players/two/losses").set(player2Losses)
-        //empty player1 & 2 varibles
-        player1Choice = "";
-        player2Choice = "";
-         // //Show Choices for next round
-        
-    
-    // //Show Choices for next round
-    // //change choices to empty
-    // db.ref("players/one/choice").set("") 
-    // db.ref("players/two/choice").set("") 
-    // //update win/losses in db 
-    // db.ref("players/one/wins").set(player1Wins)
-    // db.ref("players/two/losses").set(player2Losses)
-    // //empty player1 & 2 varibles
-    // player1Choice = "";
-    // player2Choice = "";
-    
+    setTimeout(roundOver,4000)
 }
 
 function player1loser() {
     player2Wins++
     player1Losses++
-    db.ref("players/two/wins").set(player2Wins)
     //diplay in middle square choices of both oppoents
+    middlePlayer1Loses()
     //user timer before starting next round 
-    //Show Choices for next round
-    //change choices to empty
+    setTimeout(roundOver,4000)
+    // db.ref("players/two/wins").set(player2Wins)
+    // //diplay in middle square choices of both oppoents
+    // //user timer before starting next round 
+    // //Show Choices for next round
+    // //change choices to empty
+    // db.ref("players/one/choice").set("") 
+    // db.ref("players/two/choice").set("")
+    // //update win/losses in db 
+    // db.ref("players/two/wins").set(player2Wins)
+    // db.ref("players/one/losses").set(player1Losses)
+    // //empty player1 & 2 varibles
+    // player1Choice = "";
+    // player2Choice = "";
+}
+
+
+
+function middlePlayer1Wins() {
+    //hide player choices in original blocks 
+    $(".selected1").hide()
+    $(".selected2").hide()
+    // create player 1 to display in the middle square
+    var middleSquareP1 = $("<p>").html(`<p>${dbPlayer1Name} Wins! <br> ${dbplayer1Choice} </p>`).addClass("result winner")
+    // create player 2 to displ= $("<p>").html(`<p>${dbPlayer1Name} Wins! <br> ${dbplayer1Choice} </p>`)ay in the middle square
+    var middleSquareP2 = $("<p>").html(`<p>${dbPlayer2Name} Lost. <br> ${dbplayer2Choice} </p>`).addClass("result loser")
+    //append to middle square
+    $(".middleSquare").append(middleSquareP1);
+    $(".middleSquare").append(middleSquareP2);
+}
+function middlePlayer1Loses() {
+    //hide player choices in original blocks 
+    $(".selected1").hide()
+    $(".selected2").hide()
+    // create player 1 to display in the middle square
+    var middleSquareP1 = $("<p>").html(`<p>${dbPlayer1Name} Lost. <br> ${dbplayer1Choice} </p>`).addClass("result loser")
+    // create player 2 to displ= $("<p>").html(`<p>${dbPlayer1Name} Wins! <br> ${dbplayer1Choice} </p>`)ay in the middle square
+    var middleSquareP2 = $("<p>").html(`<p>${dbPlayer2Name} Wins! <br> ${dbplayer2Choice} </p>`).addClass("result winner")
+    //append to middle square
+    $(".middleSquare").append(middleSquareP1);
+    $(".middleSquare").append(middleSquareP2);
+
+}
+function roundOver() {
     db.ref("players/one/choice").set("") 
-    db.ref("players/two/choice").set("")
+    db.ref("players/two/choice").set("") 
     //update win/losses in db 
-    db.ref("players/two/wins").set(player2Wins)
+    db.ref("players/one/wins").set(player1Wins)
     db.ref("players/one/losses").set(player1Losses)
+    db.ref("players/two/wins").set(player2Wins)
+    db.ref("players/two/losses").set(player2Losses)
     //empty player1 & 2 varibles
     player1Choice = "";
     player2Choice = "";
+    $(".selected1").addClass("choicep1")
+    $(".selected2").addClass("choicep2")
+    $(".result").remove();
+    $(".choicep1").removeClass("selected1");
+    $(".choicep2").removeClass("selected2");
+    // //Show Choices for next round
+    $(".choicep1").show();
+    $(".choicep2").show();
 }
