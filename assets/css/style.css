@@ -3,7 +3,20 @@
     border:solid black 1px;
     background: lightblue;
     margin: 25px;
+    margin-top: 5px;
 }
+
+.Name {
+    width: 33%;
+    margin: 0 auto;
+    font-size: 25px;
+}
+.middleName {
+    width: 33%;
+    margin: 0 auto;
+    font-size: 25px;
+}
+
 
 .choice {
     font-size: 25px;

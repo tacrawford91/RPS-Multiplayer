@@ -152,4 +152,25 @@ connectionsRef.on("value", function(snap) {
   // Display the viewer count in the html.
   // The number of online users is the number of children in the connections list.
   $("#watchers").text(snap.numChildren());
-});
+});$("#add-player").on("click", function(){
+    event.preventDefault();
+    var newPlayer = $("#new-player").val().trim();
+    
+    if (numberOfPlayers === 0) {
+         //create player one
+         db.ref("players").push({"one":{
+            choice: "",
+            losses: player1Losses,
+            name: dbPlayer1Name,
+            wins: player1Wins
+        }
+        })
+    } else if (numberOfPlayers ===1)
+    //create user two 
+    db.ref("players").push({"one":{
+        choice: "",
+        losses: player1Losses,
+        name: dbPlayer1Name,
+        wins: player1Wins
+    }
+    })
