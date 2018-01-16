@@ -29,14 +29,178 @@ var config = {
  var dbplayer2Choice = "";
  var numberOfPlayers = 0;
  var newPlayer=""
- var player1Exists = false;
  var player1ChoiceDisp;
  var player2ChoiceDisp;
  var turns = 0;
- //
  var player1NameCheck = "";
  var chatUser = ""
 
+
+// function
+
+function saveMessage(user, message) {
+    db.ref("chat").push({
+      "message": message,
+      "user": user
+    });
+  }
+
+function setPlayer1() {
+    // show player 1 choices
+    $(".choicep1").show();
+    //remove p2 choices
+    $(".choicep2").remove();
+    //Presence Stuff
+    connectedRef.on("value", function(snap) {
+        // If they are connected..
+        if (snap.val()) {
+        // Add user to the connections list.
+        var con1 = connectionsRef.push(true);
+        // Remove user from the connection list when they disconnect.
+        con1.onDisconnect().remove();
+        db.ref("players/one").onDisconnect().update({name:""});
+        }
+    });
+    //create player one
+    db.ref("players/one").set({
+    choice: "",
+    losses: player1Losses,
+    name: newPlayer,
+    wins: player1Wins
+    });
+    //show player 1 name
+    $(".player1Name").html(`Player 1: ${newPlayer}`);
+    //Show wins and loses 
+    $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
+    $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
+    //set chat name
+    chatUser = newPlayer
+    //empty newPLayer
+    newPlayer = ""
+}
+
+
+function rps() {
+    if (dbplayer1Choice !== "" && dbplayer2Choice !=="") {
+        //The following is the rps logic
+        if ((dbplayer1Choice === "rock") || (dbplayer1Choice === "paper") || (dbplayer1Choice === "scissors")) {
+
+            if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "scissors")) {
+            player1winner()
+            return
+            } else if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "paper")) {
+            player1loser()
+            return
+            } else if ((dbplayer1Choice === "scissors") && (dbplayer2Choice === "rock")) {
+                player1loser();
+                return
+            } else if ((dbplayer1Choice === "scissors") && (dbplayer2Choice === "paper")) {
+            player1winner();
+            return
+            } else if ((dbplayer1Choice === "paper") && (dbplayer2Choice === "rock")) {
+            player1winner();
+            return
+            } else if ((dbplayer1Choice === "paper") && (dbplayer2Choice === "scissors")) {
+            player1loser();
+            return
+            } else if (dbplayer1Choice === dbplayer2Choice) {
+            tie()
+            return
+            }
+        }
+    } else { 
+        return}
+}
+
+function player1winner() {
+    //update wins/loses 
+    player1Wins++
+    player2Losses++
+    player1ChoiceDisp = dbplayer1Choice
+    player2ChoiceDisp = dbplayer2Choice
+    player1Choice = "";
+    player2Choice = "";
+    //update html wins and loses 
+    $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
+    $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
+    //diplay in middle square choices of both oppoents
+    middlePlayer1Wins()
+    //user timer before starting next round 
+    setTimeout(roundOver,2000)
+}
+
+function player1loser() {
+    player2Wins++
+    player1Losses++
+    player1ChoiceDisp = dbplayer1Choice
+    player2ChoiceDisp = dbplayer2Choice
+    player1Choice = "";
+    player2Choice = "";
+    //update html wins and loses 
+    $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
+    $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
+    //diplay in middle square choices of both oppoents
+    middlePlayer1Loses()
+    //user timer before starting next round 
+    setTimeout(roundOver,2000)
+}
+
+function middlePlayer1Wins() {
+    //hide player choices in original blocks 
+    $(".selected1").hide()
+    $(".selected2").hide()
+    // create player 1 to display in the middle square
+    var middleSquareP1 = $("<p>").html(`<p>${dbPlayer1Name} Wins! <br> ${player1ChoiceDisp} </p>`).addClass("result winner")
+    // create player 2 to displ= $("<p>").html(`<p>${dbPlayer1Name} Wins! <br> ${dbplayer1Choice} </p>`)ay in the middle square
+    var middleSquareP2 = $("<p>").html(`<p>${dbPlayer2Name} Lost. <br> ${player2ChoiceDisp} </p>`).addClass("result loser")
+    //append to middle square
+    $(".middleSquare").append(middleSquareP1);
+    $(".middleSquare").append(middleSquareP2);
+}
+function middlePlayer1Loses() {
+    //hide player choices in original blocks 
+    $(".selected1").hide()
+    $(".selected2").hide()
+    // create player 1 to display in the middle square
+    var middleSquareP1 = $("<p>").html(`<p>${dbPlayer1Name} Lost. <br> ${player1ChoiceDisp} </p>`).addClass("result loser")
+    // create player 2 to displ= $("<p>").html(`<p>${dbPlayer1Name} Wins! <br> ${dbplayer1Choice} </p>`)ay in the middle square
+    var middleSquareP2 = $("<p>").html(`<p>${dbPlayer2Name} Wins! <br> ${player2ChoiceDisp} </p>`).addClass("result winner")
+    //append to middle square
+    $(".middleSquare").append(middleSquareP1);
+    $(".middleSquare").append(middleSquareP2);
+
+}
+function tie() {
+    //update middle square (reset playing field)
+    //hide player choices in original blocks 
+    $(".selected1").hide()
+    $(".selected2").hide()
+    var tieSquare = $("<p>").html(`Tie Game <br> Play Again!</p>`).addClass("tieSquare");
+    $(".middleSquare").append(tieSquare);
+    setTimeout(roundOver,2000);
+
+}
+function roundOver() {
+    db.ref("players/one").update({wins: player1Wins})
+    db.ref("players/one").update({losses: player1Losses})
+    db.ref("players/two").update({wins: player2Wins})
+    db.ref("players/two").update({losses: player2Losses})
+    //reset choices
+    db.ref("players/one/choice").set("") 
+    db.ref("players/two/choice").set("") 
+    //empty player1 & 2 varibles
+    $(".selected1").addClass("choicep1")
+    $(".selected2").addClass("choicep2")
+    $(".result").remove();
+    $(".choicep1").removeClass("selected1");
+    $(".choicep2").removeClass("selected2");
+    // //Show Choices for next round
+    $(".choicep1").show();
+    $(".choicep2").show();
+    //remove tie if there
+    $(".tieSquare").remove();
+    return
+}
 
 //create choices 
 var rockChoice1 = $("<p>").text("Rock").attr("data-choice", "rock").addClass("choice choicep1"); 
@@ -112,7 +276,6 @@ $("#add-player").on("click", function(){
     }
 })
 
-
 //listen for click, set as choice, run game, update wins,
 $(".choicep1").on("click", function() {
         //set player choice to what was clicked
@@ -147,7 +310,6 @@ $(".choicep2").on("click", function() {
 //number of players
 connectionsRef.on("value", function(snap) {
     numberOfPlayers = snap.numChildren()
-    console.log("number of players" + numberOfPlayers);
     //check number of players
     if (numberOfPlayers === 2) {
         db.ref().on("value", function(snapshot) {
@@ -182,13 +344,6 @@ db.ref("turns").on("value", function(snapshot) {
 rps()
 })
 
-//bug fix
-db.ref().on("value", function(snapshot){
-    if (dbplayer1Choice !== "" & dbplayer2Choice !=="" && turns < 2){
-        turns++
-        console.log("bugggg")
-    }
-})
 
 //Start Chat Application
 $("#send-button").on("click", function() {
@@ -206,7 +361,6 @@ db.ref("chat").on("value", function (snapshot) {
         return;
     }
     $(".chatBox").empty();
-    console.log(snapshot.val() + "HELLLOOOO");
     var messages = snapshot.val();
     var keys = Object.keys(messages);
     for (var i = 0; i < keys.length; i++) {
@@ -219,170 +373,3 @@ db.ref("chat").on("value", function (snapshot) {
     });
 
 
-
-function saveMessage(user, message) {
-    db.ref("chat").push({
-      "message": message,
-      "user": user
-    });
-  }
-
-function setPlayer1() {
-    // show player 1 choices
-    $(".choicep1").show();
-    //remove p2 choices
-    $(".choicep2").remove();
-    //Presence Stuff
-    connectedRef.on("value", function(snap) {
-        // If they are connected..
-        if (snap.val()) {
-        // Add user to the connections list.
-        var con1 = connectionsRef.push(true);
-        // Remove user from the connection list when they disconnect.
-        con1.onDisconnect().remove();
-        db.ref("players/one").onDisconnect().update({name:""});
-        }
-    });
-    //create player one
-    db.ref("players/one").set({
-    choice: "",
-    losses: player1Losses,
-    name: newPlayer,
-    wins: player1Wins
-    });
-    //show player 1 name
-    $(".player1Name").html(`Player 1: ${newPlayer}`);
-    //Show wins and loses 
-    $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
-    $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
-    //set chat name
-    chatUser = newPlayer
-    //empty newPLayer
-    newPlayer = ""
-}
-
-
-function rps() {
-    if (dbplayer1Choice !== "" && dbplayer2Choice !=="") {
-        //The following is the rps logic
-        if ((dbplayer1Choice === "rock") || (dbplayer1Choice === "paper") || (dbplayer1Choice === "scissors")) {
-
-            if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "scissors")) {
-            player1winner()
-            console.log(" I PLAYED THE GAME")
-            return
-            } else if ((dbplayer1Choice === "rock") && (dbplayer2Choice === "paper")) {
-            player1loser()
-            return
-            } else if ((dbplayer1Choice === "scissors") && (dbplayer2Choice === "rock")) {
-                player1loser();
-                return
-            } else if ((dbplayer1Choice === "scissors") && (dbplayer2Choice === "paper")) {
-            player1winner();
-            return
-            } else if ((dbplayer1Choice === "paper") && (dbplayer2Choice === "rock")) {
-            player1winner();
-            return
-            } else if ((dbplayer1Choice === "paper") && (dbplayer2Choice === "scissors")) {
-            player1loser();
-            return
-            } else if (dbplayer1Choice === dbplayer2Choice) {
-            tie()
-            return
-            }
-        }
-    } else { 
-        console.log(" I DID NOT PLAY THE GAME")
-        return}
-}
-
-function player1winner() {
-    //update wins/loses 
-    player1Wins++
-    player2Losses++
-    player1ChoiceDisp = dbplayer1Choice
-    player2ChoiceDisp = dbplayer2Choice
-    player1Choice = "";
-    player2Choice = "";
-    //update html wins and loses 
-    $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
-    $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
-    //diplay in middle square choices of both oppoents
-    middlePlayer1Wins()
-    //user timer before starting next round 
-    setTimeout(roundOver,2000)
-}
-
-function player1loser() {
-    player2Wins++
-    player1Losses++
-    player1ChoiceDisp = dbplayer1Choice
-    player2ChoiceDisp = dbplayer2Choice
-    player1Choice = "";
-    player2Choice = "";
-    //update html wins and loses 
-    $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
-    $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
-    //diplay in middle square choices of both oppoents
-    middlePlayer1Loses()
-    //user timer before starting next round 
-    setTimeout(roundOver,2000)
-}
-
-function middlePlayer1Wins() {
-    //hide player choices in original blocks 
-    $(".selected1").hide()
-    $(".selected2").hide()
-    // create player 1 to display in the middle square
-    var middleSquareP1 = $("<p>").html(`<p>${dbPlayer1Name} Wins! <br> ${player1ChoiceDisp} </p>`).addClass("result winner")
-    // create player 2 to displ= $("<p>").html(`<p>${dbPlayer1Name} Wins! <br> ${dbplayer1Choice} </p>`)ay in the middle square
-    var middleSquareP2 = $("<p>").html(`<p>${dbPlayer2Name} Lost. <br> ${player2ChoiceDisp} </p>`).addClass("result loser")
-    //append to middle square
-    $(".middleSquare").append(middleSquareP1);
-    $(".middleSquare").append(middleSquareP2);
-}
-function middlePlayer1Loses() {
-    //hide player choices in original blocks 
-    $(".selected1").hide()
-    $(".selected2").hide()
-    // create player 1 to display in the middle square
-    var middleSquareP1 = $("<p>").html(`<p>${dbPlayer1Name} Lost. <br> ${player1ChoiceDisp} </p>`).addClass("result loser")
-    // create player 2 to displ= $("<p>").html(`<p>${dbPlayer1Name} Wins! <br> ${dbplayer1Choice} </p>`)ay in the middle square
-    var middleSquareP2 = $("<p>").html(`<p>${dbPlayer2Name} Wins! <br> ${player2ChoiceDisp} </p>`).addClass("result winner")
-    //append to middle square
-    $(".middleSquare").append(middleSquareP1);
-    $(".middleSquare").append(middleSquareP2);
-
-}
-function tie() {
-    //update middle square (reset playing field)
-    //hide player choices in original blocks 
-    $(".selected1").hide()
-    $(".selected2").hide()
-    var tieSquare = $("<p>").html(`Tie Game <br> Play Again!</p>`).addClass("tieSquare");
-    $(".middleSquare").append(tieSquare);
-    setTimeout(roundOver,2000);
-
-}
-function roundOver() {
-    console.log("roundover function ran");
-    db.ref("players/one").update({wins: player1Wins})
-    db.ref("players/one").update({losses: player1Losses})
-    db.ref("players/two").update({wins: player2Wins})
-    db.ref("players/two").update({losses: player2Losses})
-    //reset choices
-    db.ref("players/one/choice").set("") 
-    db.ref("players/two/choice").set("") 
-    //empty player1 & 2 varibles
-    $(".selected1").addClass("choicep1")
-    $(".selected2").addClass("choicep2")
-    $(".result").remove();
-    $(".choicep1").removeClass("selected1");
-    $(".choicep2").removeClass("selected2");
-    // //Show Choices for next round
-    $(".choicep1").show();
-    $(".choicep2").show();
-    //remove tie if there
-    $(".tieSquare").remove();
-    return
-}
