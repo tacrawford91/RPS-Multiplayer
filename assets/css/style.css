@@ -3,21 +3,31 @@
     border:solid black 1px;
     background: lightblue;
     margin: 25px;
-    margin-top: 5px;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 .Name {
-    width: 33%;
+    width: 100%;
     margin: 0 auto;
-    font-size: 25px;
+    font-size: 30px;
+    text-align: center;
 }
+.Name p{
+margin: 0;
+}
+
 .middleName {
     width: 33%;
     margin: 0 auto;
     font-size: 25px;
 }
-
-
+.score {
+    width: 100%;
+    margin: 0 auto;
+    font-size: 30px;
+    text-align: center;
+}
 .choice {
     font-size: 25px;
     text-align: center;
@@ -28,12 +38,6 @@
 }
 .choice:hover {
     background: white;
-}
-.chatBox{
-    height: 200px;
-    width: 100%;
-    margin-top: 20px;
-    border: solid black 2px;
 }
 .result {
     font-size: 25px;
@@ -48,5 +52,28 @@
 }
 .loser {
 background: lightsalmon;
+}
+.tieSquare {
+    font-size: 40px;
+    text-align: center;
+    line-height: 131px;
+    background: red;
+    height: 100%;
+}
+.chatRow {
+    height: 400px
+}
+.chatBox{
+    height: 200px;
+    width: 100%;
+    margin-top: 20px;
+    border: solid black 2px;
+    overflow-y: scroll
+}
+#message {
+    width: 80% 
+}
+#send-button {
+    width: 19% 
 }
 

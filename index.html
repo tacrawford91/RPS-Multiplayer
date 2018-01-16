@@ -26,7 +26,7 @@
         <div class="col-md-offset-3 col-md-6 col-md-offset-3">
             <form action="" method="POST" class="form-horizontal" role="form">
                     <div class="form-group">
-                        <legend>Player Name</legend>
+                        <legend>Input Player Name</legend>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-10 col-sm-offset-2">
@@ -60,8 +60,20 @@
         </div>
     </div> 
     <div class="row">
+        <div class="col-md-4 col-lg-4 middle">
+            <div class="score"><p class="player1Score"></p></div>
+        </div>
+        <div class="col-md-4 col-lg-4">
+            <div class=" score middlescore"></div>
+        </div>
+        <div class="col-md-4 col-lg-4 middle">
+            <div class="score"><p class="player2Score"></p></div>
+        </div>
+    <div class="row chatRow">
         <div class="col-md-offset-1 col-md-10 col-md-offset-1 chat">
-            <input type="text" class="chatBox">
+            <div class="chatBox"></div>
+            <input id="message" type="text" placeholder="Message"/>
+            <button id="send-button">Send</button>
         </div>
     </div>
     </div>

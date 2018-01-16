@@ -17,10 +17,10 @@ var config = {
   var connectionsRef = db.ref("/connections")
   var connectedRef = db.ref(".info/connected");
  // intial varibles
- var player1Wins = 0;
- var player2Wins = 0;
- var player1Losses = 0;
- var player2Losses = 0;
+ var player1Wins;
+ var player2Wins;
+ var player1Losses;
+ var player2Losses;
  var player1Choice ="";
  var player2Choice = "";
  var dbPlayer1Name = "";
@@ -28,10 +28,14 @@ var config = {
  var dbplayer1Choice = "";
  var dbplayer2Choice = "";
  var numberOfPlayers = 0;
+ var newPlayer=""
  var player1Exists = false;
  var player1ChoiceDisp;
-var player2ChoiceDisp;
-var turns = 0;
+ var player2ChoiceDisp;
+ var turns = 0;
+ //
+ var player1NameCheck = "";
+ var chatUser = ""
 
 
 //create choices 
@@ -49,96 +53,33 @@ $(".choicep1").hide();
 $(".choicep2").hide();
 //set initial presence
 
+//Check PLayer Name one 
+db.ref("players/one/name").on("value", function(snapshot) {
+    player1NameCheck = snapshot.val();
+    //reset scores
+    player1Wins = 0;
+    player1Losses = 0;
+    player1Wins = 0;
+    player1Losses = 0;
+    })
+db.ref("players/two/name").on("value", function(snapshot) {
+    //reset scores
+    player1Wins = 0;
+    player1Losses = 0;
+    player2Wins = 0;
+    player2Losses = 0;
+    })
 
-// //listen to form and define user
-// $("#add-player").on("click", function(){
-//     event.preventDefault();
-//     //get store name in unknown
-//     var newPlayer = $("#new-player").val().trim();
-//     //assign to either player one or two
-//     db.ref("players").on("value", function(snapshot) {
-//         //set db varibles for easy access
-//         dbPlayer1Name = snapshot.child("one").child("name").val()
-//         dbPlayer2Name = snapshot.child("two").child("name").val()
-
-//         if (dbPlayer1Name === "") {
-//             // //set player 1 in db
-//             db.ref("players/one/name").set(dbPlayer1Name)
-//              //show player 1 choices
-//             $(".choicep1").show();
-//             //remove p2 choices
-//             $(".choicep2").remove();
-//             //Presence Stuff
-//             connectedRef.on("value", function(snap) {
-//                 // If they are connected..
-//                 if (snap.val()) {
-//                  // Add user to the connections list.
-//                   var con1 = connectionsRef.push(true);
-//                   db.ref("players/one/status").set("online")
-//                   // Remove user from the connection list when they disconnect.
-//                   con1.onDisconnect().remove();
-//                   db.ref("players/two").onDisconnect().remove();
-//                 }
-//               });
-
-//         } else if (dbPlayer2Name === "" && dbPlayer1Name !== newPlayer) {
-//             dbPlayer2Name = newPlayer
-//             //set player 2 in db
-//             db.ref("players/two/name").set(dbPlayer2Name)
-//             //show player 2 choices
-//             $(".choicep2").show();
-//             //remove p1 choices
-//             $(".choicep1").remove();
-//              //Presence Stuff
-//              connectedRef.on("value", function(snap) {
-//                 // If they are connected..
-//                 if (snap.val()) {
-//                  // Add user to the connections list.
-//                   var con2 = connectionsRef.push(true);
-//                   db.ref("players/two/status").set("online")
-//                   // Remove user from the connection list when they disconnect.
-//                   con2.onDisconnect().remove();
-//                   db.ref("players/one").onDisconnect().remove();
-//                 }
-//             })
-//         } 
-//     })
-// })
-
-//Delete above - 
+//Set up players 
 $("#add-player").on("click", function(){
     event.preventDefault();
-    var newPlayer = $("#new-player").val().trim();
-
+    newPlayer = $("#new-player").val().trim();
+    $("#new-player").val("");
     if (numberOfPlayers < 1) {
-        // show player 1 choices
-            $(".choicep1").show();
-            //remove p2 choices
-            $(".choicep2").remove();
-            //Presence Stuff
-            connectedRef.on("value", function(snap) {
-                // If they are connected..
-                if (snap.val()) {
-                 // Add user to the connections list.
-                  var con1 = connectionsRef.push(true);
-                  // Remove user from the connection list when they disconnect.
-                  con1.onDisconnect().remove();
-                  db.ref("players/one").onDisconnect().remove();
-                }
-              });
-              
-              //create player one
-         db.ref("players/one").set({
-            choice: "",
-            losses: player1Losses,
-            name: newPlayer,
-            wins: player1Wins
-        
-        });
-        //show player 1 name
-        $(".player1Name").html(`Player 1:${newPlayer}`);
-        newPlayer = ""
-    } else if (numberOfPlayers === 1) {
+        setPlayer1();
+    } else if (numberOfPlayers ===1 && player1NameCheck === "") {
+        setPlayer1();
+    } else if (numberOfPlayers === 1 && player1NameCheck !== "") {
         //create user two 
             db.ref("players/two").set({
                 choice: "",
@@ -146,8 +87,13 @@ $("#add-player").on("click", function(){
                 name: newPlayer,
                 wins: player2Wins
             }) 
+            //set chat name
+            chatUser = newPlayer
             //show player 2 name
-            $(".player2Name").html(`Player 2:${newPlayer}`);
+            $(".player2Name").html(`Player 2: ${newPlayer}`);
+            //Show wins and loses 
+         $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
+         $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
             // show player 2 choices
             $(".choicep2").show();
             //remove p1 choices
@@ -162,10 +108,9 @@ $("#add-player").on("click", function(){
                     con2.onDisconnect().remove();
                     db.ref("players/two").onDisconnect().remove();
                 }
-        })
+            })
     }
 })
-
 
 
 //listen for click, set as choice, run game, update wins,
@@ -183,6 +128,7 @@ $(".choicep1").on("click", function() {
         turns++
         db.ref("turns").set(turns)
 });
+
 $(".choicep2").on("click", function() {
         //set player choice to what was clicked
         player2Choice = $(this).attr("data-choice")
@@ -190,30 +136,28 @@ $(".choicep2").on("click", function() {
         $(this).addClass("selected2")
         //set players choice in db
         db.ref("players/two/choice").set(player2Choice)
+        turns = turns + 1
+        db.ref("turns").set(turns)
         // remove class from this
         $(this).removeClass("choicep2")
         //hide other choices
         $(".choicep2").hide()
-        turns++
-        db.ref("turns").set(turns)
 })
 
 //number of players
 connectionsRef.on("value", function(snap) {
     numberOfPlayers = snap.numChildren()
     console.log("number of players" + numberOfPlayers);
-//check number of players
+    //check number of players
     if (numberOfPlayers === 2) {
         db.ref().on("value", function(snapshot) {
             // get players 1 choice and name from db
-            if( snapshot.val().players.one !== undefined) {
+            if( snapshot.val().players.one.name !== "") {
             dbplayer1Choice = snapshot.val().players.one.choice
             dbPlayer1Name = snapshot.val().players.one.name;
             $(".player1Name").html(`Player 1:${dbPlayer1Name}`);
             } else {
                 $(".player1Name").html("Player 1 Disconnected");
-                player1Wins = 0;
-                player1Losses = 0;
             }
             //set player 2 choice name if exists (also not disconnected)
             if( snapshot.val().players.two !== undefined) {
@@ -223,10 +167,7 @@ connectionsRef.on("value", function(snap) {
             } else {
                 //player 2 disconnect message
                 $(".player2Name").html("Player 2 Disconnected");
-                player2Wins = 0;
-                player2Losses = 0;
             } 
-            //Play Game
 
         }) 
 
@@ -234,11 +175,92 @@ connectionsRef.on("value", function(snap) {
 
 });
 
+//Setting Turns Up
 db.ref("turns").set(turns)
 // play game
 db.ref("turns").on("value", function(snapshot) {
 rps()
 })
+
+//bug fix
+db.ref().on("value", function(snapshot){
+    if (dbplayer1Choice !== "" & dbplayer2Choice !=="" && turns < 2){
+        turns++
+        console.log("bugggg")
+    }
+})
+
+//Start Chat Application
+$("#send-button").on("click", function() {
+    //store new message
+    var user = chatUser
+    var message = $("#message").val();
+   //empty textfield
+   $("#message").val("")
+   //push into database
+      saveMessage(user, message);
+    })
+
+db.ref("chat").on("value", function (snapshot) {
+    if (snapshot.val() == null) {
+        return;
+    }
+    $(".chatBox").empty();
+    console.log(snapshot.val() + "HELLLOOOO");
+    var messages = snapshot.val();
+    var keys = Object.keys(messages);
+    for (var i = 0; i < keys.length; i++) {
+        var aKey = keys[i];
+        var messageUser = messages[aKey].user;
+        var messageHTML = "";
+        messageHTML = `<div><b>${messages[aKey].user}</b>: ${snapshot.val()[aKey].message}</div>`;  
+        $(".chatBox").append(messageHTML);
+    }
+    });
+
+
+
+function saveMessage(user, message) {
+    db.ref("chat").push({
+      "message": message,
+      "user": user
+    });
+  }
+
+function setPlayer1() {
+    // show player 1 choices
+    $(".choicep1").show();
+    //remove p2 choices
+    $(".choicep2").remove();
+    //Presence Stuff
+    connectedRef.on("value", function(snap) {
+        // If they are connected..
+        if (snap.val()) {
+        // Add user to the connections list.
+        var con1 = connectionsRef.push(true);
+        // Remove user from the connection list when they disconnect.
+        con1.onDisconnect().remove();
+        db.ref("players/one").onDisconnect().update({name:""});
+        }
+    });
+    //create player one
+    db.ref("players/one").set({
+    choice: "",
+    losses: player1Losses,
+    name: newPlayer,
+    wins: player1Wins
+    });
+    //show player 1 name
+    $(".player1Name").html(`Player 1: ${newPlayer}`);
+    //Show wins and loses 
+    $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
+    $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
+    //set chat name
+    chatUser = newPlayer
+    //empty newPLayer
+    newPlayer = ""
+}
+
 
 function rps() {
     if (dbplayer1Choice !== "" && dbplayer2Choice !=="") {
@@ -265,6 +287,7 @@ function rps() {
             player1loser();
             return
             } else if (dbplayer1Choice === dbplayer2Choice) {
+            tie()
             return
             }
         }
@@ -281,6 +304,9 @@ function player1winner() {
     player2ChoiceDisp = dbplayer2Choice
     player1Choice = "";
     player2Choice = "";
+    //update html wins and loses 
+    $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
+    $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
     //diplay in middle square choices of both oppoents
     middlePlayer1Wins()
     //user timer before starting next round 
@@ -294,6 +320,9 @@ function player1loser() {
     player2ChoiceDisp = dbplayer2Choice
     player1Choice = "";
     player2Choice = "";
+    //update html wins and loses 
+    $(".player1Score").html(`Wins: ${player1Wins}, Losses: ${player1Losses}`)
+    $(".player2Score").html(`Wins: ${player2Wins}, Losses: ${player2Losses}`)
     //diplay in middle square choices of both oppoents
     middlePlayer1Loses()
     //user timer before starting next round 
@@ -325,6 +354,16 @@ function middlePlayer1Loses() {
     $(".middleSquare").append(middleSquareP2);
 
 }
+function tie() {
+    //update middle square (reset playing field)
+    //hide player choices in original blocks 
+    $(".selected1").hide()
+    $(".selected2").hide()
+    var tieSquare = $("<p>").html(`Tie Game <br> Play Again!</p>`).addClass("tieSquare");
+    $(".middleSquare").append(tieSquare);
+    setTimeout(roundOver,2000);
+
+}
 function roundOver() {
     console.log("roundover function ran");
     db.ref("players/one").update({wins: player1Wins})
@@ -343,5 +382,7 @@ function roundOver() {
     // //Show Choices for next round
     $(".choicep1").show();
     $(".choicep2").show();
+    //remove tie if there
+    $(".tieSquare").remove();
     return
 }
